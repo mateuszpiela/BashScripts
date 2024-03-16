@@ -8,6 +8,10 @@ nginx_docker_container="nginx-nginx-1"
 #List of servers using standalone nginx (systemctl reload nginx)
 nginx_servers=""
 
+#List of servers to reload the caddy unit using docker cmds
+caddy_docker_servers=""
+caddy_docker_container="caddy-caddy-1"
+
 #List of servers using custom shell script (owned,executable,writable by root)
 shell_scripts_servers=""
 #Upload user setup
@@ -51,6 +55,11 @@ if [[ "$domain" == *"test.eu" || "$domain" == *"testx.eu" ]]; then
 
                 if exists_in_list "$nginx_servers" " " $server; then
                         ssh -i $ssh_key -o LogLevel=error $ssh_user@$server "sudo /usr/bin/systemctl reload nginx"
+                        found_in_list=true
+                fi
+
+                if exists_in_list "$caddy_docker_servers" " " $server; then
+                        ssh -i $ssh_key -o LogLevel=error $ssh_user@$server "sudo /usr/bin/docker exec -w /etc/caddy $caddy_docker_container caddy reload"
                         found_in_list=true
                 fi
 
